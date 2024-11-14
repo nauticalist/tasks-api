@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/domains/tasks/api/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/domains/tasks/persistence/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/domains/tasks/service/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
