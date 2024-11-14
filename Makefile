@@ -9,3 +9,6 @@ export MAX_CONNECTIONS
 setenv_db:
 	fish -C "set -Ux DATABASE_URL ${DATABASE_URL}"
 	fish -C "set -Ux MAX_CONNECTIONS ${MAX_CONNECTIONS}"
+
+run:
+	cargo run -p api
