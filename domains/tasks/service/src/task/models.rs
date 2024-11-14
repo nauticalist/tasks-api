@@ -50,6 +50,18 @@ impl fmt::Display for NewTask {
     }
 }
 
+impl NewTask {
+    pub fn to_task(self) -> Result<Task, ServiceError> {
+        let task = Task {
+            id: 0,
+            title: self.title,
+            status: self.status.to_string()
+        };
+
+        Ok(task)
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TaskDto {
     pub id: i64,
@@ -66,6 +78,14 @@ impl TaskDto {
         };
 
         Ok(dto)
+    }
+
+    pub fn to_task(self) -> Task {
+        Task {
+            id: self.id,
+            title: self.title,
+            status: self.status.to_string()
+        }
     }
 }
 
