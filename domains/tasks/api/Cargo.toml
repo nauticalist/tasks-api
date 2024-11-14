@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+tokio = {version = "1.41.1", features = ["full"]}
+actix-web = "4.9.0"
+tracing = "0.1.40"
+
+core = {path = "../../../core"}
+service = {path = "../service"}
+persistence = {path = "../persistence"}

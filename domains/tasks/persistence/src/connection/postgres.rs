@@ -4,7 +4,7 @@ use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 
 pub static DB_POOL: Lazy<PgPool> = Lazy::new(|| {
-    let connection_string = env::var("DB_URL").unwrap();
+    let connection_string = env::var("DATABASE_URL").unwrap();
     let max_connection = env::var("MAX_CONNECTIONS")
         .unwrap_or_else(|_| "5".to_string())
         .trim()

@@ -1,6 +1,6 @@
 use std::future::Future;
 use crate::task::schema::{Task, TaskStore};
-use core::errors::{ServiceError, ServiceErrorStatus};
+use core::errors::{ServiceError, SqlxError, ServiceErrorStatus};
 use crate::connection::postgres::DB_POOL;
 
 pub trait TaskFetcher {
@@ -19,27 +19,24 @@ impl TaskFetcher for TaskStore {
 }
 
 async fn fetch_task(id: i64) -> Result<Task, ServiceError> {
-    let task = sqlx::query_as::<_, Task>(
-        "SELECT * FROM tasks WHERE id = $1"
+    sqlx::query_as::<_, Task>(
+        "SELECT * FROM tasks WHERE id = $1",
     ).bind(id)
         .fetch_optional(&*DB_POOL)
-        .await?
+        .await
         .map_err(|e| {
-           ServiceError::new(
-               e.to_string(),
-               ServiceErrorStatus::Unknown
-           )
-        });
-
-    match task {
-        Some(task) => Ok(task),
-        None => {
+            println!("{:?}", e.to_string());
             ServiceError::new(
-                "Task not found".to_string(),
+                "Something went wrong!".to_string(),
+                ServiceErrorStatus::DatabaseError(SqlxError::from(e))
+            )
+        })?
+        .ok_or_else(||
+            ServiceError::new(
+                format!("Task with id {} not found", id),
                 ServiceErrorStatus::NotFound
             )
-        }
-    }
+        )
 }
 
 async fn fetch_all_tasks() -> Result<Vec<Task>, ServiceError> {
@@ -48,9 +45,10 @@ async fn fetch_all_tasks() -> Result<Vec<Task>, ServiceError> {
     ).fetch_all(&*DB_POOL)
         .await
         .map_err(|e| {
+            println!("{:?}", e.to_string());
             ServiceError::new(
-                e.to_string(),
-                ServiceErrorStatus::Unknown
+                "Something went wrong!".to_string(),
+                ServiceErrorStatus::DatabaseError(SqlxError::from(e))
             )
         })?;
 

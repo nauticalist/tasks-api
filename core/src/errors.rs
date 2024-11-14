@@ -5,7 +5,17 @@ use std::fmt::Formatter;
 use actix_web::{HttpResponse, error::ResponseError, http::StatusCode};
 use actix_web::body::BoxBody;
 
-#[derive(Error, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SqlxError(String);
+
+impl From<sqlx::Error> for SqlxError {
+    fn from(err: sqlx::Error) -> Self {
+        SqlxError(err.to_string())
+    }
+}
+
+
+#[derive(Error, Debug, Serialize, Deserialize)]
 pub enum ServiceErrorStatus {
     #[error("Not Found")]
     NotFound,
@@ -18,7 +28,15 @@ pub enum ServiceErrorStatus {
     #[error("Conflict")]
     Conflict,
     #[error("Unauthorized")]
-    Unauthorized
+    Unauthorized,
+    #[error("Unknown")]
+    DatabaseError(SqlxError),
+}
+
+impl From<sqlx::Error> for ServiceErrorStatus {
+    fn from(err: sqlx::Error) -> Self {
+        ServiceErrorStatus::DatabaseError(SqlxError::from(err))
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Error)]
@@ -49,28 +67,28 @@ impl ResponseError for ServiceError {
             ServiceErrorStatus::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
             ServiceErrorStatus::BadRequest => StatusCode::BAD_REQUEST,
             ServiceErrorStatus::Conflict => StatusCode::CONFLICT,
-            ServiceErrorStatus::Unauthorized => StatusCode::UNAUTHORIZED
+            ServiceErrorStatus::Unauthorized => StatusCode::UNAUTHORIZED,
+            ServiceErrorStatus::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR
         }
     }
 
     fn error_response(&self) -> HttpResponse<BoxBody> {
         let status_code = self.status_code();
         HttpResponse::build(status_code).json(self.message.clone())
-
     }
 }
 
 #[macro_export]
 macro_rules! error_check {
     ($e:expr, $err_status:expr) => {
-        $e.map_err(|x| NanoServiceError::new(
+        $e.map_err(|x| ServiceError::new(
             x.to_string(),
             $err_status
         ))
     };
 
     ($e:expr, $err_status:expr, $message_context:expr) => {
-      $e.map_err(|x| NanoServiceError::new(
+      $e.map_err(|x| ServiceError::new(
           format!("{}: {}", $message_context, x.to_string()),
           $err_status
       ))

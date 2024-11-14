@@ -1,6 +1,6 @@
 use std::future::Future;
 use crate::task::schema::{Task, TaskStore};
-use core::errors::{ServiceError, ServiceErrorStatus};
+use core::errors::{ServiceError, ServiceErrorStatus, SqlxError};
 use crate::connection::postgres::DB_POOL;
 
 pub trait TaskCreator {
@@ -22,8 +22,8 @@ async fn create_task(item: Task) -> Result<Task, ServiceError> {
         .await
         .map_err(|e| {
             ServiceError::new(
-                e.to_string(),
-                ServiceErrorStatus::Unknown
+                "Something went wrong!".to_string(),
+                ServiceErrorStatus::DatabaseError(SqlxError::from(e))
             )
         })?;
 
