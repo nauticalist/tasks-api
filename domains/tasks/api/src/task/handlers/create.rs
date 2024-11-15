@@ -1,4 +1,4 @@
-use actix_web::{HttpRequest, HttpResponse};
+use actix_web::{HttpResponse};
 use actix_web::web::Json;
 use core::errors::{ServiceError};
 use service::task::actions::create::TaskCreatorService;

@@ -16,7 +16,7 @@ impl TaskUpdater for TaskStore {
 
 async fn update_task(task: Task) -> Result<Task, ServiceError> {
     sqlx::query_as::<_, Task>(
-        "UPDATE tasks SET title = $1, status $2 WHERE id = $3 RETURNING *"
+        "UPDATE tasks SET title = $1, status = $2 WHERE id = $3 RETURNING *"
     ).bind(task.title)
         .bind(task.status)
         .bind(task.id)

@@ -17,6 +17,6 @@ impl TaskUpdaterService for TaskService {
 }
 
 async fn update_task_fn<T: TaskUpdater>(task: TaskDto) -> Result<TaskDto, ServiceError> {
-    let task = T::update(task.to_task()).await?;
-    TaskDto::from_task(task)
+    let updated = T::update(task.to_task()).await?;
+    TaskDto::from_task(updated)
 }

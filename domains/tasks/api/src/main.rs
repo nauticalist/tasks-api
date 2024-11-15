@@ -5,7 +5,7 @@ mod task;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    // run_migrations().await;
+    run_migrations().await;
     HttpServer::new(|| {
         App::new().configure(task::tasks_api)
     }).workers(4)

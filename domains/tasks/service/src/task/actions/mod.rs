@@ -1,4 +1,4 @@
 pub mod get;
 pub mod create;
-mod delete;
-mod update;
+pub mod delete;
+pub mod update;
